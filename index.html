@@ -45,6 +45,50 @@
     .admin-subtitle { color: var(--text-3); font-size: 0.82rem; }
     .admin-content { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
 
+    /* ── User avatars (Canva-style) ── */
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 800; color: #fff;
+      flex-shrink: 0; user-select: none;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1.5px rgba(0,0,0,.12);
+    }
+    .online-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 800; color: #fff;
+      flex-shrink: 0; border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.1);
+      margin-left: -7px; position: relative;
+      cursor: default; transition: transform .15s;
+    }
+    .online-avatar:first-child { margin-left: 0; }
+    .online-avatar:hover { transform: translateY(-4px); z-index: 20 !important; }
+    .online-avatar.is-me { border-color: var(--primary, #2563eb); }
+    .online-dot {
+      position: absolute; bottom: 0; right: 0;
+      width: 8px; height: 8px; background: #22c55e;
+      border-radius: 50%; border: 1.5px solid #fff;
+    }
+    .online-avatar::after {
+      content: attr(data-tooltip);
+      position: absolute; bottom: calc(100% + 7px); left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b; color: #fff;
+      font-size: 0.68rem; font-weight: 600;
+      padding: 0.25rem 0.6rem; border-radius: 5px;
+      white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity .15s;
+    }
+    .online-avatar:hover::after { opacity: 1; }
+    .online-count {
+      font-size: 0.75rem; font-weight: 600; color: var(--text-3);
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: 999px; padding: 0.15rem 0.6rem;
+      margin-left: 0.5rem; white-space: nowrap;
+    }
+
     /* ── Stats ── */
     .stats-bar {
       display: grid;
@@ -208,6 +252,7 @@
     .resp-table tbody tr:last-child td { border-bottom: none; }
     .resp-table tbody tr:hover td      { background: var(--bg-2, #f8fafc); }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
 
@@ -289,11 +334,26 @@
     <div class="admin-header-left">
       <img src="img/DigiLab_Logo.png" style="height:34px;width:auto" alt="DigiLab">
       <span class="admin-badge">ADMIN</span>
-      <span class="admin-subtitle">Panel Feedback Webinar</span>
+      <!-- Current user -->
+      <div style="display:flex;align-items:center;gap:0.5rem;padding-left:0.75rem;
+                  border-left:1px solid var(--border);margin-left:0.25rem">
+        <div id="myAvatar" class="user-avatar" style="background:#6366f1">?</div>
+        <span id="myName" style="font-size:0.84rem;font-weight:600;color:var(--text-2);
+              max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Admin</span>
+      </div>
     </div>
-    <button class="btn-edit" onclick="logout()" style="color:var(--danger,#ef4444)">
-      🚪 Logout
-    </button>
+    <!-- Right side: online users + logout -->
+    <div style="display:flex;align-items:center;gap:1rem">
+      <!-- Online now -->
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <span style="font-size:0.72rem;color:var(--text-3);font-weight:500">🟢 Online</span>
+        <div id="onlineAvatars" style="display:flex;align-items:center;padding-left:4px"></div>
+        <span id="onlineCount" class="online-count">0</span>
+      </div>
+      <button class="btn-edit" onclick="logout()" style="color:var(--danger,#ef4444)">
+        🚪 Logout
+      </button>
+    </div>
   </div>
 
   <div class="admin-content">
