@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DigiLab — Admin Feedback</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    body { background: var(--bg-0, #f1f5f9); }
+
+    /* ── Login ── */
+    #loginScreen {
+      position: fixed; inset: 0; z-index: 1000;
+      background: var(--bg-0, #f1f5f9);
+      display: none; align-items: center; justify-content: center;
+    }
+    .login-box {
+      background: var(--bg-1, #fff);
+      border: 1px solid var(--border); border-radius: 1rem;
+      padding: 2.5rem 2rem; width: 100%; max-width: 400px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.1); text-align: center;
+    }
+    .login-box p { color: var(--text-3); margin-bottom: 1.5rem; font-size:0.9rem }
+    #loginError {
+      color: var(--danger); font-size: 0.85rem;
+      margin-top: 0.5rem; display: none;
+    }
+
+    /* ── Admin panel ── */
+    #adminPanel { display: none; min-height: 100vh; }
+
+    .admin-header {
+      background: var(--bg-1, #fff);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .admin-header-left { display: flex; align-items: center; gap: 0.875rem; }
+    .admin-badge {
+      background: var(--primary); color: #fff;
+      font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.6rem;
+      border-radius: 999px; letter-spacing: .08em;
+    }
+    .admin-subtitle { color: var(--text-3); font-size: 0.82rem; }
+    .admin-content { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+    /* ── User avatars (Canva-style) ── */
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 800; color: #fff;
+      flex-shrink: 0; user-select: none;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1.5px rgba(0,0,0,.12);
+    }
+    .online-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 800; color: #fff;
+      flex-shrink: 0; border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.1);
+      margin-left: -7px; position: relative;
+      cursor: default; transition: transform .15s;
+    }
+    .online-avatar:first-child { margin-left: 0; }
+    .online-avatar:hover { transform: translateY(-4px); z-index: 20 !important; }
+    .online-avatar.is-me { border-color: var(--primary, #2563eb); }
+    .online-dot {
+      position: absolute; bottom: 0; right: 0;
+      width: 8px; height: 8px; background: #22c55e;
+      border-radius: 50%; border: 1.5px solid #fff;
+    }
+    .online-avatar::after {
+      content: attr(data-tooltip);
+      position: absolute; bottom: calc(100% + 7px); left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b; color: #fff;
+      font-size: 0.68rem; font-weight: 600;
+      padding: 0.25rem 0.6rem; border-radius: 5px;
+      white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity .15s;
+    }
+    .online-avatar:hover::after { opacity: 1; }
+    .online-count {
+      font-size: 0.75rem; font-weight: 600; color: var(--text-3);
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: 999px; padding: 0.15rem 0.6rem;
+      margin-left: 0.5rem; white-space: nowrap;
+    }
+
+    /* ── Stats ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: var(--bg-1, #fff); border: 1px solid var(--border);
+      border-radius: 0.75rem; padding: 1rem 1.25rem;
+    }
+    .stat-num { font-size: 2rem; font-weight: 800; color: var(--primary); line-height: 1; }
+    .stat-lbl { font-size: 0.78rem; color: var(--text-3); margin-top: 0.25rem; }
+
+    /* ── Tabs ── */
+    .admin-tabs {
+      display: flex; border-bottom: 2px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .admin-tab {
+      padding: 0.6rem 1.25rem; font-weight: 600; cursor: pointer;
+      border: none; background: none; color: var(--text-3);
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+      font-size: 0.88rem; transition: color .15s;
+    }
+    .admin-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .admin-tab:hover  { color: var(--primary); }
+
+    /* ── Question cards ── */
+    .question-card {
+      background: var(--bg-1, #fff); border: 1px solid var(--border);
+      border-radius: 0.75rem; padding: 1rem 1.25rem;
+      margin-bottom: 0.65rem; transition: box-shadow .15s;
+    }
+    .question-card:hover { box-shadow: 0 2px 14px rgba(0,0,0,.07); }
+
+    .type-badge {
+      background: #eff6ff; color: var(--primary, #2563eb);
+      font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+    }
+    .req-badge {
+      background: #fef2f2; color: #ef4444;
+      font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+    }
+    .opt-badge {
+      background: var(--bg-2, #f8fafc); color: var(--text-3);
+      font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+    }
+    .icon-btn {
+      background: none; border: 1px solid var(--border);
+      border-radius: 4px; cursor: pointer; font-size: 0.65rem;
+      padding: 0.15rem 0.35rem; color: var(--text-3); line-height: 1;
+    }
+    .icon-btn:hover    { background: var(--bg-2); }
+    .icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-edit {
+      background: var(--bg-2, #f8fafc); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.3rem 0.75rem;
+      font-size: 0.8rem; cursor: pointer; color: var(--text-2);
+      transition: all .15s;
+    }
+    .btn-edit:hover { background: #eff6ff; color: var(--primary); border-color: var(--primary); }
+
+    .btn-delete {
+      background: none; border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.3rem 0.5rem;
+      font-size: 0.9rem; cursor: pointer; color: var(--text-3);
+      transition: all .15s;
+    }
+    .btn-delete:hover { background: #fef2f2; border-color: #fca5a5; color: #ef4444; }
+
+    /* ── Modal ── */
+    #questionModal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.55); z-index: 500;
+      align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-box {
+      background: var(--bg-1, #fff); border-radius: 1rem;
+      width: 100%; max-width: 560px; max-height: 92vh;
+      overflow-y: auto; padding: 1.75rem 1.75rem 1.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .modal-header h3 { margin: 0; font-size: 1.1rem; }
+    .modal-close {
+      background: none; border: none; font-size: 1.25rem;
+      cursor: pointer; color: var(--text-3); line-height:1; padding:0;
+    }
+    .modal-close:hover { color: var(--text-1); }
+
+    /* Type selector */
+    .type-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+    .type-card {
+      border: 2px solid var(--border); border-radius: 0.6rem;
+      padding: 0.65rem 0.25rem; text-align: center; cursor: pointer;
+      transition: all .15s; font-size: 0.78rem; font-weight: 600;
+      color: var(--text-3); background: var(--bg-1);
+      user-select: none;
+    }
+    .type-card:hover  { border-color: var(--primary); color: var(--primary); }
+    .type-card.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
+    .tc-icon          { font-size: 1.25rem; display: block; margin-bottom: 0.2rem; }
+
+    /* Toggle */
+    .toggle-wrap {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 0; border-top: 1px solid var(--border); margin-top: 0.5rem;
+    }
+    .toggle-switch   { position: relative; width: 44px; height: 24px; flex-shrink:0 }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: var(--border);
+      border-radius: 999px; cursor: pointer; transition: .2s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; left: 3px; top: 3px;
+      background: white; border-radius: 50%; transition: .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    input:checked + .toggle-slider               { background: var(--primary); }
+    input:checked + .toggle-slider::before       { transform: translateX(20px); }
+
+    /* Summary */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .summary-card {
+      background: var(--bg-1, #fff); border: 1px solid var(--border);
+      border-radius: 0.75rem; padding: 1.1rem 1.25rem;
+    }
+    .summary-q {
+      font-weight: 600; margin-bottom: 0.75rem;
+      font-size: 0.875rem; line-height: 1.5;
+    }
+
+    /* Response table */
+    .resp-table  { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    .resp-table th {
+      background: var(--bg-2, #f8fafc); padding: 0.65rem 0.875rem;
+      text-align: left; font-size: 0.78rem; color: var(--text-3);
+      font-weight: 700; border-bottom: 1px solid var(--border);
+    }
+    .resp-table td {
+      padding: 0.6rem 0.875rem; border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .resp-table tbody tr:last-child td { border-bottom: none; }
+    .resp-table tbody tr:hover td      { background: var(--bg-2, #f8fafc); }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <img src="img/DigiLab_Logo.png" style="height:44px;width:auto;margin-bottom:1.25rem" alt="DigiLab">
+    <h2 style="margin-bottom:1rem">Panel Admin Feedback</h2>
+
+    <!-- Tab switch -->
+    <div style="display:flex;border-bottom:2px solid var(--border);margin-bottom:1.25rem">
+      <button id="tabLogin" onclick="showLoginTab()"
+        style="flex:1;padding:0.5rem;border:none;background:none;font-weight:600;
+               cursor:pointer;font-size:0.9rem;transition:color .15s;
+               color:var(--primary);border-bottom:3px solid var(--primary);margin-bottom:-2px">
+        Login
+      </button>
+      <button id="tabRegister" onclick="showRegisterTab()"
+        style="flex:1;padding:0.5rem;border:none;background:none;font-weight:600;
+               cursor:pointer;font-size:0.9rem;transition:color .15s;
+               color:var(--text-3);border-bottom:3px solid transparent;margin-bottom:-2px">
+        Daftar
+      </button>
+    </div>
+
+    <!-- Login form -->
+    <div id="loginTab">
+      <div class="form-group" style="text-align:left">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="adminEmail" type="email" placeholder="admin@email.com"/>
+      </div>
+      <div class="form-group" style="text-align:left">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="adminPassword" type="password" placeholder="••••••••"/>
+      </div>
+      <div id="loginError" style="color:var(--danger);font-size:0.85rem;margin-top:0.4rem;display:none"></div>
+      <button id="loginBtn" class="btn btn-primary"
+        style="width:100%;justify-content:center;margin-top:0.875rem"
+        onclick="login()">
+        Masuk
+      </button>
+    </div>
+
+    <!-- Register form -->
+    <div id="registerTab" style="display:none">
+      <div class="form-group" style="text-align:left">
+        <label class="form-label">Nama</label>
+        <input class="form-input" id="regName" placeholder="Nama lengkap kamu..."/>
+      </div>
+      <div class="form-group" style="text-align:left">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="regEmail2" type="email" placeholder="admin@email.com"/>
+      </div>
+      <div class="form-group" style="text-align:left">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="regPassword" type="password" placeholder="Min. 6 karakter"/>
+      </div>
+      <div class="form-group" style="text-align:left">
+        <label class="form-label">Konfirmasi Password</label>
+        <input class="form-input" id="regPassword2" type="password" placeholder="Ulangi password"/>
+      </div>
+      <div id="regError"      style="color:var(--danger);font-size:0.85rem;margin-top:0.4rem;display:none"></div>
+      <div id="regSuccessMsg" style="color:#16a34a;font-size:0.85rem;margin-top:0.4rem;display:none"></div>
+      <button id="registerBtn" class="btn btn-primary"
+        style="width:100%;justify-content:center;margin-top:0.875rem"
+        onclick="register()">
+        Buat Akun Admin
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="adminPanel">
+
+  <!-- Header -->
+  <div class="admin-header">
+    <div class="admin-header-left">
+      <img src="img/DigiLab_Logo.png" style="height:34px;width:auto" alt="DigiLab">
+      <span class="admin-badge">ADMIN</span>
+      <!-- Current user -->
+      <div style="display:flex;align-items:center;gap:0.5rem;padding-left:0.75rem;
+                  border-left:1px solid var(--border);margin-left:0.25rem">
+        <div id="myAvatar" class="user-avatar" style="background:#6366f1">?</div>
+        <span id="myName" style="font-size:0.84rem;font-weight:600;color:var(--text-2);
+              max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Admin</span>
+      </div>
+    </div>
+    <!-- Right side: online users + logout -->
+    <div style="display:flex;align-items:center;gap:1rem">
+      <!-- Online now -->
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <span style="font-size:0.72rem;color:var(--text-3);font-weight:500">🟢 Online</span>
+        <div id="onlineAvatars" style="display:flex;align-items:center;padding-left:4px"></div>
+        <span id="onlineCount" class="online-count">0</span>
+      </div>
+      <button class="btn-edit" onclick="logout()" style="color:var(--danger,#ef4444)">
+        🚪 Logout
+      </button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-num" id="questionCount">—</div>
+        <div class="stat-lbl">Pertanyaan Aktif</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="responseCount">—</div>
+        <div class="stat-lbl">Total Respons</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="questions" onclick="showTab('questions')">📋 Pertanyaan</button>
+      <button class="admin-tab" data-tab="responses" onclick="showTab('responses')">📊 Respons</button>
+    </div>
+
+    <!-- Tab: Pertanyaan -->
+    <div id="tab-questions" class="tab-content">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;
+                  gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem">
+        <div>
+          <h3 style="margin:0">Kelola Pertanyaan</h3>
+          <p style="color:var(--text-3);font-size:0.83rem;margin:0.2rem 0 0">
+            Tambah, edit, hapus, atau ubah urutan pertanyaan feedback.
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal(null)" style="flex-shrink:0">
+          + Tambah Pertanyaan
+        </button>
+      </div>
+      <div id="questionList"></div>
+    </div>
+
+    <!-- Tab: Respons -->
+    <div id="tab-responses" class="tab-content" style="display:none">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;
+                  gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem">
+        <div>
+          <h3 style="margin:0">Lihat Respons</h3>
+          <p style="color:var(--text-3);font-size:0.83rem;margin:0.2rem 0 0">
+            Ringkasan statistik dan detail semua jawaban peserta.
+          </p>
+        </div>
+        <button class="btn-edit" onclick="loadResponses()">🔄 Refresh</button>
+      </div>
+      <div id="responseContent"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── QUESTION MODAL ── -->
+<div id="questionModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalTitle">Tambah Pertanyaan</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <!-- Teks pertanyaan -->
+    <div class="form-group">
+      <label class="form-label">Teks Pertanyaan *</label>
+      <textarea class="form-input" id="mqText" rows="2"
+        placeholder="Contoh: Seberapa puas kamu dengan materi webinar ini?"
+        style="resize:vertical;min-height:60px;font-family:inherit"></textarea>
+    </div>
+
+    <!-- Tipe jawaban -->
+    <div class="form-group">
+      <label class="form-label">Tipe Jawaban *</label>
+      <input type="hidden" id="mqSelectedType" value="short_text">
+      <div class="type-grid">
+        <div class="type-card active" data-type="short_text" onclick="selectType('short_text')">
+          <span class="tc-icon">✏️</span>Teks Pendek
+        </div>
+        <div class="type-card" data-type="long_text" onclick="selectType('long_text')">
+          <span class="tc-icon">📝</span>Teks Panjang
+        </div>
+        <div class="type-card" data-type="scale" onclick="selectType('scale')">
+          <span class="tc-icon">⭐</span>Skala
+        </div>
+        <div class="type-card" data-type="multiple_choice" onclick="selectType('multiple_choice')">
+          <span class="tc-icon">🔘</span>Pilihan Ganda
+        </div>
+        <div class="type-card" data-type="checkbox" onclick="selectType('checkbox')">
+          <span class="tc-icon">☑️</span>Checkbox
+        </div>
+        <div class="type-card" data-type="dropdown" onclick="selectType('dropdown')">
+          <span class="tc-icon">📋</span>Dropdown
+        </div>
+      </div>
+    </div>
+
+    <!-- Field khusus Skala -->
+    <div id="scaleFields" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Rentang Skala</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+          <div>
+            <label style="font-size:0.78rem;color:var(--text-3);display:block;margin-bottom:0.3rem">Nilai Minimum</label>
+            <input class="form-input" id="mqScaleMin" type="number" value="1" min="0" max="9"/>
+          </div>
+          <div>
+            <label style="font-size:0.78rem;color:var(--text-3);display:block;margin-bottom:0.3rem">Nilai Maksimum</label>
+            <input class="form-input" id="mqScaleMax" type="number" value="5" min="2" max="10"/>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          Label Skala
+          <span style="color:var(--text-4);font-weight:400">(opsional)</span>
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+          <div>
+            <label style="font-size:0.78rem;color:var(--text-3);display:block;margin-bottom:0.3rem">Label kiri (min)</label>
+            <input class="form-input" id="mqScaleLabelMin" placeholder="Sangat Tidak Puas"/>
+          </div>
+          <div>
+            <label style="font-size:0.78rem;color:var(--text-3);display:block;margin-bottom:0.3rem">Label kanan (max)</label>
+            <input class="form-input" id="mqScaleLabelMax" placeholder="Sangat Puas"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Field khusus Pilihan -->
+    <div id="optionFields" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Opsi Jawaban *</label>
+        <div id="mqOptionsContainer"></div>
+        <button type="button" onclick="addOptionField('')"
+          style="width:100%;margin-top:0.4rem;padding:0.45rem 0.75rem;
+                 border:1.5px dashed var(--border);border-radius:6px;
+                 background:none;cursor:pointer;color:var(--text-3);
+                 font-size:0.83rem;transition:all .15s"
+          onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'"
+          onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-3)'">
+          + Tambah Opsi
+        </button>
+      </div>
+    </div>
+
+    <!-- Wajib diisi toggle -->
+    <div class="toggle-wrap">
+      <label class="toggle-switch">
+        <input type="checkbox" id="mqRequired" checked>
+        <span class="toggle-slider"></span>
+      </label>
+      <div>
+        <div style="font-weight:600;font-size:0.9rem">Wajib Diisi</div>
+        <div style="font-size:0.78rem;color:var(--text-3)">Peserta harus menjawab pertanyaan ini</div>
+      </div>
+    </div>
+
+    <!-- Tombol aksi modal -->
+    <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+      <button class="btn btn-primary" id="modalSaveBtn"
+        style="flex:1;justify-content:center" onclick="saveQuestion()">
+        Simpan Pertanyaan
+      </button>
+      <button onclick="closeModal()"
+        style="flex:0 0 auto;padding:0.65rem 1rem;
+               border:1px solid var(--border);border-radius:0.5rem;
+               cursor:pointer;background:var(--bg-1);
+               color:var(--text-2);font-weight:500;font-size:0.9rem">
+        Batal
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="js/feedback-admin.js"></script>
+</body>
+</html>
