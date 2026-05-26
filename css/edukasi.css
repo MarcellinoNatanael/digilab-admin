@@ -1,0 +1,64 @@
+/* ============================================================
+   DigiLab — edukasi.css
+   Styles khusus halaman Edukasi (edukasi.html)
+   ============================================================ */
+
+/* ── Page Hero ────────────────────────────────────────────── */
+.page-hero {
+  background: linear-gradient(180deg, var(--blue-light) 0%, var(--bg) 100%);
+  padding: 4.5rem 0 3.5rem; border-bottom: 1px solid var(--border);
+}
+.page-hero h1 { margin-top: 0.75rem; margin-bottom: 0.9rem; }
+
+/* ── Quote Box ────────────────────────────────────────────── */
+.quote-box {
+  background: var(--blue-light); border-left: 4px solid var(--blue);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.75rem 2rem; margin-bottom: 3rem;
+}
+.quote-box blockquote {
+  font-size: 1rem; color: var(--text); font-style: italic;
+  line-height: 1.75; margin-bottom: 0.6rem;
+}
+.quote-box cite {
+  font-size: 0.8rem; color: var(--blue); font-weight: 600; font-style: normal;
+}
+
+/* ── Criteria List (9 IGD) ────────────────────────────────── */
+.criteria-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.criteria-item {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.1rem 1.25rem;
+  display: flex; gap: 1rem; align-items: flex-start;
+  transition: var(--transition); box-shadow: var(--shadow-sm);
+}
+.criteria-item:hover { border-color: var(--blue-mid); box-shadow: var(--shadow); }
+
+.c-num {
+  width: 30px; height: 30px; min-width: 30px;
+  background: var(--blue); color: #fff; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-weight: 700;
+}
+.c-body h4 { margin-bottom: 0.2rem; font-size: 0.92rem; }
+.c-body p  { font-size: 0.82rem; }
+
+/* ── Impact Grid ──────────────────────────────────────────── */
+.impact-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.1rem; }
+
+.impact-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.4rem;
+  border-top: 3px solid; transition: var(--transition); box-shadow: var(--shadow-sm);
+}
+.impact-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.impact-card .emoji { font-size: 1.75rem; margin-bottom: 0.7rem; }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .impact-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 768px) {
+  .impact-grid { grid-template-columns: 1fr; }
+}

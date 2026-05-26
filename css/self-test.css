@@ -1,0 +1,329 @@
+/* ============================================================
+   DigiLab — self-test.css
+   Styles halaman Self-Test Gaming Addiction
+   ============================================================ */
+
+/* ── Page Hero ─────────────────────────────────────────────── */
+.page-hero {
+  background: linear-gradient(160deg, var(--blue-light) 0%, var(--bg) 100%);
+  padding: 4.5rem 0 3.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.page-hero h1 { margin-top: 0.75rem; margin-bottom: 0.9rem; }
+.hero-meta {
+  display: flex; gap: 1.25rem; flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+.hero-meta-item { font-size: 0.82rem; color: var(--text-3); }
+
+/* ── Wrapper ────────────────────────────────────────────────── */
+.st-wrap { max-width: 700px; margin: 0 auto; }
+
+/* ── Progress Header ───────────────────────────────────────── */
+.st-header-bar {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.st-progress-track {
+  flex: 1; height: 7px; background: var(--surface-2);
+  border-radius: 30px; overflow: hidden;
+}
+.st-progress-fill {
+  height: 100%; border-radius: 30px;
+  background: linear-gradient(90deg, var(--blue), var(--sky));
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+}
+.st-counter {
+  font-size: 0.8rem; font-weight: 700;
+  color: var(--text-3); white-space: nowrap;
+}
+
+/* ── Question Card ─────────────────────────────────────────── */
+.st-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem 2.5rem;
+  box-shadow: var(--shadow);
+  animation: stCardIn 0.28s ease;
+}
+
+@keyframes stCardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Domain label strip */
+.st-domain-tag {
+  display: flex; align-items: center; gap: 0.45rem;
+  font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--blue); margin-bottom: 1rem;
+}
+.domain-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%; display: inline-block; flex-shrink: 0;
+}
+.st-qnum-pill {
+  margin-left: auto; font-weight: 600; font-size: 0.68rem;
+  color: var(--text-4); letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Question text */
+.st-question {
+  font-size: 1.08rem; font-weight: 600; color: var(--text);
+  line-height: 1.65; margin-bottom: 2rem; margin-top: 0;
+}
+
+/* ── Likert Scale ──────────────────────────────────────────── */
+.st-scale-wrap { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.likert-header {
+  display: flex; justify-content: space-between;
+  padding: 0 0.2rem;
+}
+.likert-ep {
+  font-size: 0.72rem; color: var(--text-4);
+  font-weight: 500;
+}
+
+.likert-scale {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.55rem;
+}
+
+.likert-opt {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.45rem; padding: 0.85rem 0.3rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer; background: var(--bg);
+  text-align: center; transition: all 0.18s ease;
+  user-select: none; position: relative;
+  /* reset button styles */
+  font-family: inherit; outline: none;
+}
+.likert-opt:hover {
+  border-color: var(--blue);
+  background: var(--blue-light);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.12);
+}
+.likert-opt:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.likert-opt.selected {
+  border-color: var(--blue);
+  background: var(--blue);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(37,99,235,0.28);
+}
+
+.likert-num {
+  font-size: 1.5rem; font-weight: 900;
+  line-height: 1; color: var(--text-2);
+  transition: color 0.18s;
+}
+.likert-opt.selected .likert-num { color: #fff; }
+
+.likert-label {
+  font-size: 0.62rem; font-weight: 600;
+  color: var(--text-4); line-height: 1.3;
+  transition: color 0.18s;
+}
+.likert-opt.selected .likert-label { color: rgba(255,255,255,0.82); }
+
+/* Shake hint when unanswered */
+@keyframes shakeHint {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-6px); }
+  40%     { transform: translateX(6px); }
+  60%     { transform: translateX(-4px); }
+  80%     { transform: translateX(4px); }
+}
+.shake-hint { animation: shakeHint 0.5s ease; }
+
+/* ── Navigation Bar ────────────────────────────────────────── */
+.st-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 1.5rem;
+}
+
+/* ── Result Section ────────────────────────────────────────── */
+.st-result { display: none; }
+.st-result.show { display: block; animation: stCardIn 0.35s ease; }
+
+.result-main-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 2.5rem;
+  box-shadow: var(--shadow-lg); text-align: center;
+}
+
+.result-meta {
+  font-size: 0.75rem; color: var(--text-4);
+  margin-bottom: 1.25rem;
+}
+
+/* Score ring wrapper */
+/* SESUDAH */
+.result-score-ring {
+  width: 140px; height: 140px;
+  margin: 0 auto 1.25rem;
+  position: relative; display: block;
+}
+.ring-bg { fill: none; stroke: var(--surface-2); stroke-width: 8; }
+.ring-score-text {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.ring-score-num  { font-size: 2rem; font-weight: 900; line-height: 1; }
+.ring-score-max  { font-size: 0.72rem; color: var(--text-4); }
+
+/* Level badge */
+.result-level-badge {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.45rem 1.2rem; border-radius: 30px;
+  font-weight: 700; font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+}
+.badge-1 { background: #dcfce7; color: #16a34a; }
+.badge-2 { background: var(--blue-light); color: var(--blue); }
+.badge-3 { background: #fef9c3; color: #a16207; }
+.badge-4 { background: #ffedd5; color: #c2410c; }
+.badge-5 { background: var(--danger-bg); color: var(--danger); }
+
+.result-title {
+  font-size: 1.5rem; margin: 0 0 0.65rem;
+  letter-spacing: -0.02em;
+}
+.result-desc {
+  color: var(--text-2); font-size: 0.9rem;
+  max-width: 520px; margin: 0 auto 1rem;
+  line-height: 1.65;
+}
+
+/* Clinical note */
+.clinical-note {
+  background: var(--blue-light); border: 1px solid var(--blue-mid);
+  border-radius: var(--radius); padding: 0.85rem 1.1rem;
+  font-size: 0.8rem; color: var(--blue);
+  text-align: left; margin: 0 0 1.25rem;
+  line-height: 1.55;
+}
+
+/* Type card */
+.result-type-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem;
+  display: flex; gap: 1rem; align-items: flex-start;
+  text-align: left; margin-bottom: 1.5rem;
+}
+.type-icon { font-size: 2.25rem; line-height: 1; flex-shrink: 0; }
+.type-label {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--text-3); margin-bottom: 0.25rem;
+}
+.type-name {
+  font-size: 1.05rem; margin: 0 0 0.4rem; line-height: 1.3;
+}
+.type-name-id { color: var(--text-3); font-weight: 600; }
+.type-desc { font-size: 0.875rem; color: var(--text-2); line-height: 1.6; margin: 0; }
+
+/* Sections */
+.result-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem;
+  text-align: left; margin-bottom: 1rem;
+}
+.recs-section { background: var(--blue-light); border-color: var(--blue-mid); }
+.section-heading {
+  font-size: 0.82rem; font-weight: 700; color: var(--text);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin: 0 0 1rem;
+}
+
+/* Domain bars */
+.domain-bars { display: flex; flex-direction: column; gap: 0.9rem; }
+.domain-bar-row { display: flex; flex-direction: column; gap: 0.3rem; }
+.domain-bar-header { display: flex; justify-content: space-between; align-items: center; }
+.domain-bar-label {
+  font-size: 0.8rem; font-weight: 600; color: var(--text-2);
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.domain-dot-sm { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.domain-bar-val { font-size: 0.82rem; font-weight: 800; color: var(--text); }
+.domain-bar-track {
+  height: 9px; background: var(--surface-2);
+  border-radius: 30px; overflow: hidden;
+}
+.domain-bar-fill { height: 100%; border-radius: 30px; width: 0; }
+.domain-bar-pct {
+  font-size: 0.72rem; font-weight: 700;
+  text-align: right; min-height: 1em;
+}
+
+/* Recommendation list */
+.recs-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 0.55rem;
+}
+.recs-list li {
+  position: relative; padding-left: 1.25rem;
+  font-size: 0.875rem; color: var(--blue); line-height: 1.55;
+}
+.recs-list li::before {
+  content: '→'; position: absolute; left: 0;
+  font-weight: 700; color: var(--blue);
+}
+
+/* Action buttons */
+.result-actions {
+  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  justify-content: center; margin-top: 1.75rem;
+}
+
+/* Reference */
+.result-ref {
+  font-size: 0.72rem; color: var(--text-4);
+  margin-top: 1.5rem; line-height: 1.5;
+}
+
+/* Extra button variants */
+.btn-outline {
+  border: 1.5px solid var(--border-2); background: transparent;
+  color: var(--text-2); border-radius: var(--radius);
+  padding: 0.65rem 1.1rem; font-size: 0.875rem;
+  font-weight: 600; cursor: pointer; transition: var(--transition);
+  text-decoration: none; display: inline-flex; align-items: center;
+}
+.btn-outline:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+/* ── Disclaimer box (bottom of page) ────────────────────────── */
+.st-disclaimer {
+  max-width: 700px; margin: 2.5rem auto 0;
+  padding: 1.1rem 1.25rem;
+  background: var(--warning-bg);
+  border: 1px solid rgba(202,138,4,0.25);
+  border-radius: var(--radius);
+  display: flex; gap: 0.75rem; align-items: flex-start;
+}
+.st-disclaimer h4 { color: var(--warning); font-size: 0.85rem; margin-bottom: 0.3rem; }
+.st-disclaimer p  { font-size: 0.82rem; margin: 0; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .st-card { padding: 1.5rem 1.25rem; }
+  .st-question { font-size: 0.97rem; }
+  .likert-num { font-size: 1.2rem; }
+  .likert-label { font-size: 0.56rem; }
+  .likert-opt { padding: 0.7rem 0.15rem; }
+  .result-main-card { padding: 1.75rem 1.25rem; }
+  .result-type-card { flex-direction: column; gap: 0.75rem; }
+  .result-actions { flex-direction: column; }
+  .result-actions .btn,
+  .result-actions a { width: 100%; justify-content: center; }
+}
